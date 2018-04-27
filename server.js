@@ -4,7 +4,8 @@
 import {createUser, findUser, insertUser} from "./app/models/user";
 import {dbConnect, db} from "./db";
 import {ENV} from "./app/models/env";
-
+import {check} from 'express-validator/check';
+import {run} from "./app/run";
 
 
 var express = require('express');
@@ -155,6 +156,13 @@ const start = () => {
             res.json(Users);
         });
     });
+
+    apiRoutes.get('/user/:name',
+        [
+            check("name").isLength({min: 2}).matches(/^.+/)
+        ],
+        run(({name}) => findUser({name}))
+    );
 
 // apply the routes to our application with the prefix /api
     app.use('/api', apiRoutes);
