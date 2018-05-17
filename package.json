@@ -21,8 +21,10 @@
     "express-validator": "^5.1.2",
     "import-export": "^1.0.1",
     "jsonwebtoken": "^8.2.1",
+    "mocha": "^5.1.1",
     "mongodb": "^2.2.33",
-    "morgan": "^1.9.0"
+    "morgan": "^1.9.0",
+    "sha1": "^1.1.1"
   },
   "babel": {
     "presets": [

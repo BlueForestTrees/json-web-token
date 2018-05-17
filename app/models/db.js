@@ -1,5 +1,6 @@
 import mongodb from 'mongodb';
-import ENV from "./app/models/env";
+import ENV from "./env";
+
 
 const client = mongodb.MongoClient;
 const connectionString = `mongodb://${ENV.DB_HOST}:${ENV.DB_PORT}/${ENV.DB_NAME}`;
@@ -9,7 +10,7 @@ let database = null;
 export const dbConnect = () => {
     console.log("Connecting mongo with '" + connectionString + "'...");
     return client.connect(connectionString)
-        .then(db =>{
+        .then(db => {
             console.log("connected");
             database = db
         });
