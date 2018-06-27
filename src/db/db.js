@@ -1,5 +1,5 @@
 import mongodb from 'mongodb';
-import ENV from "./env";
+import ENV from "../env/env";
 
 
 const client = mongodb.MongoClient;

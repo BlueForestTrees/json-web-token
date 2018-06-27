@@ -2,7 +2,7 @@
   "name": "node-token-jwt",
   "main": "server.js",
   "scripts": {
-    "dev-api-win": "nodemon server.js --exec babel-node"
+    "dev-api-win": "nodemon %NODE_DEBUG_OPTION% src/server.js --exec babel-node"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
