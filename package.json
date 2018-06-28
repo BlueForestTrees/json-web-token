@@ -2,7 +2,8 @@
   "name": "node-token-jwt",
   "main": "server.js",
   "scripts": {
-    "dev-api-win": "nodemon %NODE_DEBUG_OPTION% src/server.js --exec babel-node"
+    "dev-api-debug": "nodemon %NODE_DEBUG_OPTION% src/server.js --exec babel-node",
+    "dev-api": "nodemon src/server.js --exec babel-node"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -18,12 +19,13 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
-    "express-validator": "^5.1.2",
+    "express-validator": "^5.2.0",
     "import-export": "^1.0.1",
     "jsonwebtoken": "^8.2.1",
     "mocha": "^5.1.1",
     "mongodb": "^2.2.33",
     "morgan": "^1.9.0",
+    "nested-error-stacks": "^2.0.1",
     "sha1": "^1.1.1"
   },
   "babel": {

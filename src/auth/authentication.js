@@ -1,35 +1,19 @@
 import {findUserByName} from "./user";
 import sha1 from "sha1";
 import jwt from 'jsonwebtoken';
-import {check} from "express-validator/check/index";
-import {run} from "../util";
 import ENV from "../env/env";
+import {UnauthorizedError} from "../errors/errors";
 
-export const authenticateRouter = (router) => {
-    router.post('/authenticate',
-        [
-            check('name').exists(),
-            check('password').exists(),
-        ],
-        run(authenticate)
-    );
-    router.use(checkToken);
-    return router;
-};
-
-export const authenticate = async function ({name, password}) {
+export const authenticate = async function ({name, password}, req, res) {
     const user = await findUserByName(name);
     if (!user) {
-        return ({success: false, message: 'Authentication failed. User not found.'});
-    } else if (user._password === sha1(password)) {
-        delete user._password;
-        return ({
-            success: true,
-            message: 'Enjoy your token!',
-            token: jwt.sign({user}, ENV.TOKEN_SECRET, {expiresIn: "1d"})
-        });
+        throw new UnauthorizedError("unknown login");
+    } else if (user.password !== sha1(password)) {
+        throw new UnauthorizedError("bad password");
     } else {
-        return ({success: false, message: 'Authentication failed. Wrong password.'});
+        delete user.password;
+        const token = jwt.sign({user}, ENV.TOKEN_SECRET, {expiresIn: "1d"});
+        res.header("x-access-token", token);
     }
 };
 
@@ -40,15 +24,9 @@ export const checkToken = function (req, res, next) {
             req.token = jwt.verify(token, ENV.TOKEN_SECRET);
             next();
         } catch (e) {
-            return res.status(403).send({
-                success: false,
-                message: 'Invalid token.'
-            });
+            throw new UnauthorizedError("bad token", e);
         }
     } else {
-        return res.status(401).send({
-            success: false,
-            message: 'No token provided.'
-        });
+        throw new UnauthorizedError("missing token");
     }
 };

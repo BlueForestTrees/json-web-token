@@ -1,3 +1,5 @@
+import {ValidationError} from "./errors/errors";
+
 const {validationResult} = require('express-validator/check');
 const {matchedData} = require('express-validator/filter');
 
@@ -5,30 +7,41 @@ export const debug = (...obj) => {
     console.log(JSON.stringify(obj, null, 4));
 };
 
-export const run = (work) => {
+const forbiddenError = {
+    status: 403
+};
 
+function throwForbiddenError() {
+    throw forbiddenError;
+}
+
+export const isAdmin = user => user.admin || throwForbiddenError();
+
+export const verify = job => (req, res, next) => {
+    try {
+        job(req.token.user);
+        next();
+    } catch (e) {
+        debug("FORBIDDEN ACCESS", e);
+        res.status(e.status).end();
+    }
+};
+
+export const run = (work) => {
     let validResultJson = async (req, res, next) => {
-        const error = validationResult(req);
-        if (error) {
-            const mapped = error.mapped();
-            debug("VALIDATION ERROR", mapped);
-            res.status(422).json(mapped);
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            throw new ValidationError(errors.mapped());
         } else {
-            let result = await work(matchedData(req), req, res, next);
-            res.json(result);
-            debug("result", result);
+            let body = await work(matchedData(req), req, res, next);
+            res.json(body);
+            debug("res", body);
         }
     };
 
     return (req, res, next) => {
-
-        debug("run", {user: req.token && req.token.user, url: `${req.method} ${req.url}`}, {params: req.params}, {body: req.body});
-
-        let result = validResultJson(req, res, next);
         Promise
-            .resolve(result)
-            .catch(err => {
-                return next(err);
-            });
+            .resolve(validResultJson(req, res, next))
+            .catch(next);
     };
 };
